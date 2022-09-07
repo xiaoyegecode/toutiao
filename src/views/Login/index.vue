@@ -4,7 +4,6 @@
       class="nav-bar"
       title="登录"
       left-arrow
-      @click-left="onClickLeft"
     />
     <van-form @submit="onSubmit" class="form" ref="form">
       <van-field
@@ -48,9 +47,9 @@
 
 <script>
 import { mobileRules, codeRules } from './rule.js'
-import { loginAPI } from '@/api'
+import { loginAPI, sendCodeAPI } from '@/api'
+import { mapMutations } from 'vuex'
 
-import { Toast } from 'vant'
 export default {
   name: 'LoginPage',
   data() {
@@ -63,19 +62,16 @@ export default {
     }
   },
   methods: {
-    onClickLeft() {
-      Toast('返回')
-    },
+    ...mapMutations(['SET_TOKEN']),
+
     async onSubmit() {
       // 登陆前加载中
-      this.$toast.loading({
-        message: '加载中...',
-        forbidClick: true,
-        duration: 0
-      })
+      this.loading()
+
       try {
         const res = await loginAPI(this.mobile, this.code)
-        console.log(res)
+        this.SET_TOKEN(res.data.data)
+        this.$router.push('/profile')
         this.$toast.success('登录成功')
       } catch (error) {
         // 细分一下失败提示
@@ -86,10 +82,30 @@ export default {
         }
       }
     },
+    loading() {
+      this.$toast.loading({
+        message: '加载中...',
+        forbidClick: true,
+        duration: 0
+      })
+    },
+
     // 发送验证码
     async sendCode() {
       await this.$refs.form.validate('mobile')
       this.isShowBtn = false
+      this.loading()
+      try {
+        await sendCodeAPI(this.mobile)
+        this.$toast.success('发送验证码成功')
+      } catch (error) {
+        if (error.response && (error.response.status === 429 || error.response.status === 404)) {
+          this.$toast.fail(error.response.data.message)
+        } else {
+          this.$toast.clear()
+          throw error
+        }
+      }
     }
   }
 }

@@ -10,3 +10,9 @@ export const loginAPI = (mobile, code) => {
     }
   })
 }
+
+export const sendCodeAPI = (mobile) => {
+  return request({
+    url: `/v1_0/sms/codes/${mobile}`
+  })
+}
