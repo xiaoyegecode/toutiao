@@ -1,4 +1,6 @@
 import axios from 'axios'
-axios.defaults.baseURL = 'http://ttapi.research.itcast.cn'
-axios.defaults.timeout = 5000
-export default axios
+const request = axios.create({
+  timeout: 5000,
+  baseURL: 'http://toutiao.itheima.net'
+})
+export default request

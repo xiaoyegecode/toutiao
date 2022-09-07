@@ -6,9 +6,9 @@
       left-arrow
       @click-left="onClickLeft"
     />
-    <van-form @submit="onSubmit" class="form">
+    <van-form @submit="onSubmit" class="form" ref="form">
       <van-field
-        name="mobie"
+        name="mobile"
         placeholder="请输入手机号"
         v-model="mobile"
         :rules="mobileRules"
@@ -21,7 +21,7 @@
       <van-field
         v-model="code"
         type="number"
-        name="密码"
+        name="code"
         placeholder="请输入验证码"
         :rules="codeRules"
 
@@ -30,7 +30,13 @@
           <span class="toutiao toutiao-yanzhengma"></span>
         </template>
         <template #button>
-          <van-button size="small" type="primary">发送验证码</van-button>
+          <van-button v-if="isShowBtn"
+          class="btn"
+          size="small"
+          round type="default"
+          native-type="button"
+          @click="sendCode">获取验证码</van-button>
+          <van-count-down v-else :time="5*1000" format="ss秒" @finish="isShowBtn=true" />
         </template>
       </van-field>
       <div style="margin: 16px">
@@ -42,6 +48,8 @@
 
 <script>
 import { mobileRules, codeRules } from './rule.js'
+import { loginAPI } from '@/api'
+
 import { Toast } from 'vant'
 export default {
   name: 'LoginPage',
@@ -50,15 +58,38 @@ export default {
       mobile: '',
       code: '',
       mobileRules,
-      codeRules
+      codeRules,
+      isShowBtn: true
     }
   },
   methods: {
     onClickLeft() {
       Toast('返回')
     },
-    onSubmit(values) {
-      console.log('submit', values)
+    async onSubmit() {
+      // 登陆前加载中
+      this.$toast.loading({
+        message: '加载中...',
+        forbidClick: true,
+        duration: 0
+      })
+      try {
+        const res = await loginAPI(this.mobile, this.code)
+        console.log(res)
+        this.$toast.success('登录成功')
+      } catch (error) {
+        // 细分一下失败提示
+        if (error.response && error.response.status === 400) {
+          this.$toast.fail(error.response.data.message)
+        } else {
+          this.$toast.clear()
+        }
+      }
+    },
+    // 发送验证码
+    async sendCode() {
+      await this.$refs.form.validate('mobile')
+      this.isShowBtn = false
     }
   }
 }
@@ -81,6 +112,11 @@ export default {
   .toutiao {
     font-size: 40px;
   }
-
+}
+.btn {
+  width: 2.1rem;
+  height: 0.64rem;
+  background: #ededed;
+  color: #666;
 }
 </style>
