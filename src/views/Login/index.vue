@@ -49,6 +49,7 @@
 import { mobileRules, codeRules } from './rule.js'
 import { loginAPI, sendCodeAPI } from '@/api'
 import { mapMutations } from 'vuex'
+import { Toast } from 'vant'
 
 export default {
   name: 'LoginPage',
@@ -70,6 +71,7 @@ export default {
 
       try {
         const res = await loginAPI(this.mobile, this.code)
+        console.log(res)
         this.SET_TOKEN(res.data.data)
         this.$router.push('/profile')
         this.$toast.success('登录成功')
@@ -79,11 +81,13 @@ export default {
           this.$toast.fail(error.response.data.message)
         } else {
           this.$toast.clear()
+          throw error
         }
       }
     },
+
     loading() {
-      this.$toast.loading({
+      Toast.loading({
         message: '加载中...',
         forbidClick: true,
         duration: 0
@@ -93,10 +97,10 @@ export default {
     // 发送验证码
     async sendCode() {
       await this.$refs.form.validate('mobile')
-      this.isShowBtn = false
       this.loading()
       try {
         await sendCodeAPI(this.mobile)
+        this.isShowBtn = false
         this.$toast.success('发送验证码成功')
       } catch (error) {
         if (error.response && (error.response.status === 429 || error.response.status === 404)) {
