@@ -11,10 +11,8 @@
         name="mobie"
         placeholder="请输入手机号"
         v-model="mobile"
-        :rules="[
-          { required: true, message: '请填写手机号' },
-          { pattern: /^1[3|4|5|7|8|9]\d{9}$/, message: '手机号格式错误' }
-        ]"
+        :rules="mobileRules"
+
       >
         <template #label>
           <span class="toutiao toutiao-shouji"></span>
@@ -25,10 +23,8 @@
         type="number"
         name="密码"
         placeholder="请输入验证码"
-        :rules="[
-          { required: true, message: '请输入验证码' },
-          { pattern: /^\d{6}$/, message: '验证码格式错误' }
-        ]"
+        :rules="codeRules"
+
       >
         <template #label>
           <span class="toutiao toutiao-yanzhengma"></span>
@@ -45,13 +41,16 @@
 </template>
 
 <script>
+import { mobileRules, codeRules } from './rule.js'
 import { Toast } from 'vant'
 export default {
   name: 'LoginPage',
   data() {
     return {
       mobile: '',
-      code: ''
+      code: '',
+      mobileRules,
+      codeRules
     }
   },
   methods: {
