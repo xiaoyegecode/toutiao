@@ -2,7 +2,7 @@ import axios from 'axios'
 import store from '@/store'
 
 const request = axios.create({
-  timeout: 5000,
+  timeout: 10000,
   baseURL: 'http://toutiao.itheima.net'
 })
 export default request

@@ -125,7 +125,6 @@ export default {
         if (!this.isLogin) return
         const res = await userInfoAPI()
         this.userInfo = res.data.data
-        console.log(res)
       } catch (error) {
         if (error.response && error.response.status === 401) {
           Toast.fail('用户认证失败，请重新登录')

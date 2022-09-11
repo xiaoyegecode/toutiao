@@ -1,9 +1,108 @@
 <template>
-  <div>主页</div>
+  <div class="home">
+    <!-- 搜索框 -->
+    <van-nav-bar class="nav-bar">
+      <template #title>
+        <van-button icon="search" size="small" round block color="#5babfb"
+          >搜索</van-button
+        >
+      </template>
+    </van-nav-bar>
+    <!-- 频道及文章展示 -->
+    <van-tabs v-model="active" swipeable>
+      <van-tab :title="item.name" v-for="item in channelsList" :key="item.id">
+        <ArticleList :id="item.id"></ArticleList>
+      </van-tab>
+      <span class="toutiao toutiao-gengduo"></span>
+    </van-tabs>
+  </div>
 </template>
 
 <script>
-export default {}
+import { channelAPI } from '@/api'
+import ArticleList from './ArticleList.vue'
+import { Toast } from 'vant'
+export default {
+  name: 'Home',
+  components: { ArticleList },
+  data() {
+    return {
+      active: 0,
+      channelsList: []
+    }
+  },
+  created() {
+    this.getChannel()
+  },
+  methods: {
+    async getChannel() {
+      try {
+        const res = await channelAPI()
+        this.channelsList = res.data.data.channels
+      } catch (error) {
+        if (error.response && error.response.status === 507) {
+          Toast.fail('请刷新')
+        } else {
+          throw error
+        }
+      }
+    }
+  }
+}
 </script>
+<style lang="less" scoped>
+.nav-bar {
+  background-color: #3296fa;
+  :deep(.van-nav-bar__title) {
+    max-width: unset;
+  }
+  .van-button--block {
+    width: 7.4rem;
+  }
+  .van-icon {
+    color: #fff;
+  }
+}
 
-<style></style>
+/* tabs导航条样式 */
+:deep(.van-tabs__wrap) {
+  padding-right: 66px;
+  .van-tabs__nav {
+    padding-left: 0;
+    padding-right: 0; /* tab标签 */
+    .van-tab {
+      border: 1px solid #eee;
+      width: 200px;
+      height: 82px;
+    } /* tab标签下划线 */
+    .van-tabs__line {
+      width: 31px;
+      height: 6px;
+      background-color: #3296fa;
+      bottom: 40px;
+    }
+  }
+} /* 字体图标 */
+.toutiao-gengduo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 66px;
+  height: 82px;
+  font-size: 40px;
+  line-height: 82px;
+  text-align: center;
+  opacity: 0.6;
+  border-bottom: 1px solid #eee;
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 70%;
+    width: 1px;
+    background-image: url('~@/assets/images/gradient-gray-line.png');
+  }
+}
+</style>
