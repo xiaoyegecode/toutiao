@@ -14,9 +14,11 @@ import {
   GridItem,
   Image,
   Cell,
-  CountDown
+  CountDown,
+  Col,
+  Row
 } from 'vant'
-const components = [Button, NavBar, Tabbar, TabbarItem, Form, Field, Swipe, SwipeItem, Search, Icon, Grid, GridItem, Image, Cell, CountDown]
+const components = [Button, NavBar, Tabbar, TabbarItem, Form, Field, Swipe, SwipeItem, Search, Icon, Grid, GridItem, Image, Cell, CountDown, Col, Row]
 
 const registerVant = (Vue) => {
   components.forEach((compontent) => Vue.use(compontent))

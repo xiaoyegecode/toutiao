@@ -16,3 +16,9 @@ export const sendCodeAPI = (mobile) => {
     url: `/v1_0/sms/codes/${mobile}`
   })
 }
+
+export const userInfoAPI = () => {
+  return request({
+    url: '/v1_0/user'
+  })
+}
