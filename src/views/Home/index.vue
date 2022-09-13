@@ -13,22 +13,38 @@
       <van-tab :title="item.name" v-for="item in channelsList" :key="item.id">
         <ArticleList :id="item.id"></ArticleList>
       </van-tab>
-      <span class="toutiao toutiao-gengduo"></span>
+      <span class="toutiao toutiao-gengduo" @click="isShow=true"></span>
     </van-tabs>
+    <!-- 弹出层 -->
+    <van-popup
+      v-model="isShow"
+      position="bottom"
+      :style="{ height: '100%' }"
+      closeable
+      close-icon-position="top-left"
+      >
+      <ChannelEdit
+        :myChannels="channelsList"
+        @change-active="[(isShow=false),active = $event]"
+        @remove-channel="removeChannel"
+        ></ChannelEdit>
+    </van-popup>
   </div>
 </template>
 
 <script>
 import { channelAPI } from '@/api'
 import ArticleList from './ArticleList.vue'
+import ChannelEdit from './ChannelEdit.vue'
 import { Toast } from 'vant'
 export default {
   name: 'Home',
-  components: { ArticleList },
+  components: { ArticleList, ChannelEdit },
   data() {
     return {
       active: 0,
-      channelsList: []
+      channelsList: [],
+      isShow: false
     }
   },
   created() {
@@ -46,6 +62,9 @@ export default {
           throw error
         }
       }
+    },
+    removeChannel(index) {
+      this.channelsList.splice(index, 1)
     }
   }
 }

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // value 记录成功的原因 reason 记录失败的原因
+    // promise 状态只能改变一次 pending -> fullfilled penging -> rejected  不能完成态 拒绝态相互转换
+    // promise 在执行过程中  任何错误都会导致promise 变成失败态
+    // promise 必须有then方法 onFulfilled：成功的回调， onRejected：失败的回调
+    // promise 除了链式调用还可以多次调用
+    const PENDING = 'pending'
+    const FULFILLED = 'fullfilled'
+    const REJECTED = 'rejected'
+    class Promise {
+      value
+      reason
+      status = PENDING
+      // onFulfilled
+      // onRejected
+      onFulfilledCallBacks = []
+      onRejectedCallBacks = []
+      constructor(executor) {
+        const resolve = (value) => {
+          if (this.status === PENDING) {
+            this.value = value
+            this.status = FULFILLED
+            // this.onFulfilled(this.value)
+            this.onFulfilledCallBacks.forEach(cb => cb())
+          }
+        }
+        const reject = (reason) => {
+          if (this.status === PENDING) {
+            this.reason = reason
+            this.status = REJECTED
+            // this.onRejected(this.reason)
+            this.onRejectedCallBacks.forEach(cb => cb())
+          }
+        }
+        try {
+          executor(resolve, reject)
+        } catch (error) {
+          reject(error)
+        }
+      }
+      then(onFulfilled, onRejected) {
+        if (this.status === FULFILLED) {
+          onFulfilled(this.value)
+        }
+        if (this.status === REJECTED) {
+          onRejected(this.reason)
+        }
+        if (this.status === PENDING) {
+          // this.onFulfilled = onFulfilled
+          // this.onRejected = onRejected
+          this.onFulfilledCallBacks.push(() => {
+            onFulfilled(this.value)
+          })
+          this.onRejectedCallBacks.push(() => {
+            onRejected(this.reason)
+          })
+        }
+      }
+    }
+
+    const p = new Promise((resolve, reject) => {
+      // resolve('成功')
+      setTimeout(() => {
+        resolve('成功')
+      }, 3000)
+    })
+
+    p.then(
+      (res) => console.log('第一次'),
+    )
+
+    p.then(
+        (res) => console.log('第二次'),
+      )
+
+  </script>
+</body>
+
+</html>

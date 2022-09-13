@@ -1,6 +1,23 @@
 <template>
-  <div>
-    <ArticleItem v-for="item in articles" :key="item.art_id" :article="item"></ArticleItem>
+  <div class="article">
+    <van-pull-refresh v-model="refreshLoading" @refresh = "getNextPageArticle">
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        :error.sync = "error"
+        error-text = "请求失败，点击重新加载"
+        finished-text="没有更多文章了~~~"
+        @load="getNextPageArticle"
+        offset="100"
+        :immediate-check="false"
+        >
+        <ArticleItem
+          v-for="item in articles"
+          :key="item.art_id"
+          :article="item"
+        ></ArticleItem>
+      </van-list>
+    </van-pull-refresh>
   </div>
 </template>
 
@@ -15,7 +32,12 @@ export default {
   },
   data() {
     return {
-      articles: []
+      articles: [],
+      pretimeStamp: '',
+      loading: false,
+      finished: false,
+      error: false,
+      refreshLoading: false
     }
   },
   created() {
@@ -26,6 +48,7 @@ export default {
       try {
         const res = await articleListAPI(this.id, +new Date())
         this.articles = res.data.data.results
+        this.pretimeStamp = res.data.data.pre_timestamp
       } catch (error) {
         const status = error.response?.status
         if (!error.response || status === 507) {
@@ -36,9 +59,42 @@ export default {
           }
         }
       }
+    },
+    async getNextPageArticle() {
+      try {
+        const res = await articleListAPI(this.id, this.pretimeStamp)
+        if (!res.data.data.pre_timestamp) {
+          this.finished = true
+        }
+        if (this.refreshLoading) {
+          this.articles.unshift(...res.data.data.results)
+        } else {
+          this.articles.push(...res.data.data.results)
+        }
+        this.pretimeStamp = res.data.data.pre_timestamp
+        console.log(res.data)
+      } catch (error) {
+        this.error = true
+      } finally {
+        this.loading = false
+        this.refreshLoading = false
+      }
     }
   }
 }
 </script>
 
-<style></style>
+<style lang="less" scoped>
+.article {
+  height: calc(100vh - 92px - 83px - 100px);
+  overflow: auto;
+  &::-webkit-scrollbar {
+    width: 10px;
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #3296fa;
+    border-radius: 10px;
+  }
+}
+</style>
