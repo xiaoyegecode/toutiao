@@ -14,12 +14,16 @@ export default new Vuex.Store({
   // })],
   state: {
     tokenObj: JSON.parse(window.localStorage.getItem('TOUTIAO_TOKEN')) || {},
-    a: 1
+    myChannels: JSON.parse(window.localStorage.getItem('TOUTIAO_CHANNELS')) || []
   },
   mutations: {
     SET_TOKEN(state, token) {
       state.tokenObj = token
       window.localStorage.setItem('TOUTIAO_TOKEN', JSON.stringify(token))
+    },
+    SET_MY_CHANNELS(state, channels) {
+      state.myChannels = channels
+      window.localStorage.setItem('TOUTIAO_CHANNELS', JSON.stringify(channels))
     }
   },
   getters: {

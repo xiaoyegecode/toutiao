@@ -15,6 +15,8 @@
     // promise 在执行过程中  任何错误都会导致promise 变成失败态
     // promise 必须有then方法 onFulfilled：成功的回调， onRejected：失败的回调
     // promise 除了链式调用还可以多次调用
+    // promise 的链式调用
+    // promise 除了链式调用还可以多次调用
     const PENDING = 'pending'
     const FULFILLED = 'fullfilled'
     const REJECTED = 'rejected'
@@ -50,22 +52,53 @@
         }
       }
       then(onFulfilled, onRejected) {
-        if (this.status === FULFILLED) {
-          onFulfilled(this.value)
-        }
-        if (this.status === REJECTED) {
-          onRejected(this.reason)
-        }
-        if (this.status === PENDING) {
-          // this.onFulfilled = onFulfilled
-          // this.onRejected = onRejected
-          this.onFulfilledCallBacks.push(() => {
-            onFulfilled(this.value)
-          })
-          this.onRejectedCallBacks.push(() => {
-            onRejected(this.reason)
-          })
-        }
+        const p2 = new Promise((resolve, reject) => {
+          if (this.status === FULFILLED) {
+            queueMicrotask(() => {
+              try {
+                const x = onFulfilled(this.value)
+                resolve(x)
+              } catch (error) {
+                reject(error);
+              }
+            })
+          }
+          if (this.status === REJECTED) {
+            queueMicrotask(() => {
+              try {
+                const x = onRejected(this.reason)
+                resolve(x)
+              } catch (error) {
+                reject(error)
+              }
+            })
+          }
+          if (this.status === PENDING) {
+            // this.onFulfilled = onFulfilled
+            // this.onRejected = onRejected
+            this.onFulfilledCallBacks.push(() => {
+              queueMicrotask(() => {
+                try {
+                  const x = onFulfilled(this.value)
+                  resolve(x)
+                } catch (error) {
+                  reject(error)
+                }
+              })
+            })
+            this.onRejectedCallBacks.push(() => {
+              queueMicrotask(() => {
+                try {
+                  const x = onRejected(this.reason)
+                  resolve(x)
+                } catch (error) {
+                  reject(error)
+                }
+              })
+            })
+          }
+        })
+        return p2
       }
     }
 
@@ -81,8 +114,8 @@
     )
 
     p.then(
-        (res) => console.log('第二次'),
-      )
+      (res) => console.log('第二次'),
+    )
 
   </script>
 </body>

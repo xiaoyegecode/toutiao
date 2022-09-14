@@ -27,13 +27,15 @@
         :myChannels="channelsList"
         @change-active="[(isShow=false),active = $event]"
         @remove-channel="removeChannel"
+        @add-channel=" addChannel"
         ></ChannelEdit>
     </van-popup>
   </div>
 </template>
 
 <script>
-import { channelAPI } from '@/api'
+import { mapGetters, mapMutations } from 'vuex'
+import { channelAPI, delChannelsAPI, addChannelAPI } from '@/api'
 import ArticleList from './ArticleList.vue'
 import ChannelEdit from './ChannelEdit.vue'
 import { Toast } from 'vant'
@@ -48,9 +50,29 @@ export default {
     }
   },
   created() {
-    this.getChannel()
+    this.initChannels()
+  },
+  computed: {
+    ...mapGetters(['isLogin'])
   },
   methods: {
+    ...mapMutations(['SET_MY_CHANNELS']),
+    initChannels() {
+      if (this.isLogin) {
+        // 如果登录了 应该发请求获取用户自己的频道
+        this.getChannel()
+      } else {
+        // 没有登录
+        // 本地存储里没有数据 发送请求获取默认的频道数据
+        // 本地存储里有数据 用本地存储的频道数据
+        const myChannels = this.$store.state.myChannels
+        if (myChannels.length === 0) {
+          this.getChannel()
+        } else {
+          this.channelsList = myChannels
+        }
+      }
+    },
     async getChannel() {
       try {
         const res = await channelAPI()
@@ -63,8 +85,40 @@ export default {
         }
       }
     },
-    removeChannel(index) {
-      this.channelsList.splice(index, 1)
+    async removeChannel(id) {
+      try {
+        const newChannels = this.channelsList.filter(item => item.id !== id)
+        if (this.isLogin) {
+          await delChannelsAPI(id)
+        } else {
+          this.SET_MY_CHANNELS(newChannels)
+        }
+        this.channelsList = newChannels
+        Toast.success('删除频道成功')
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          Toast.fail('请登录再删除')
+        } else {
+          throw error
+        }
+      }
+    },
+    async addChannel(channel) {
+      try {
+        if (this.isLogin) {
+          await addChannelAPI(channel.id, this.channelsList.length)
+        } else {
+          this.SET_MY_CHANNELS([...this.channelsList, channel])
+        }
+        this.channelsList.push(channel)
+        Toast.success('添加频道成功')
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          Toast.fail('请登录再添加')
+        } else {
+          throw error
+        }
+      }
     }
   }
 }
