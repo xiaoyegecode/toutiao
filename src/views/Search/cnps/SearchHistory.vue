@@ -18,6 +18,7 @@
         <van-icon
           name="close"
           v-show="isEdit"
+          @click="$store.commit('SET_HISTORIES', histories.filter((i)=> item !==i))"
         ></van-icon>
       </template>
     </van-cell>
