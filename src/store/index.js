@@ -14,7 +14,8 @@ export default new Vuex.Store({
   // })],
   state: {
     tokenObj: JSON.parse(window.localStorage.getItem('TOUTIAO_TOKEN')) || {},
-    myChannels: JSON.parse(window.localStorage.getItem('TOUTIAO_CHANNELS')) || []
+    myChannels: JSON.parse(window.localStorage.getItem('TOUTIAO_CHANNELS')) || [],
+    histories: JSON.parse(window.localStorage.getItem('TOUTIAO_HISTORY')) || []
   },
   mutations: {
     SET_TOKEN(state, token) {
@@ -24,6 +25,10 @@ export default new Vuex.Store({
     SET_MY_CHANNELS(state, channels) {
       state.myChannels = channels
       window.localStorage.setItem('TOUTIAO_CHANNELS', JSON.stringify(channels))
+    },
+    SET_HISTORIES(state, histories) {
+      state.histories = histories
+      window.localStorage.setItem('TOUTIAO_HISTORY', JSON.stringify(histories))
     }
   },
   getters: {

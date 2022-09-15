@@ -3,7 +3,7 @@
     <!-- 搜索框 -->
     <van-nav-bar class="nav-bar">
       <template #title>
-        <van-button icon="search" size="small" round block color="#5babfb"
+        <van-button icon="search" size="small" round block color="#5babfb" @click="$router.push('./search')"
           >搜索</van-button
         >
       </template>
