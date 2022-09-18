@@ -15,6 +15,7 @@
           v-for="item in articles"
           :key="item.art_id"
           :article="item"
+          @click.native="$router.push(`/detail/${item.art_id}`)"
         ></ArticleItem>
       </van-list>
     </van-pull-refresh>
@@ -72,7 +73,7 @@ export default {
           this.articles.push(...res.data.data.results)
         }
         this.pretimeStamp = res.data.data.pre_timestamp
-        console.log(res.data)
+        // console.log(res.data)
       } catch (error) {
         this.error = true
       } finally {

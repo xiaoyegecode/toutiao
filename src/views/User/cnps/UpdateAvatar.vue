@@ -2,7 +2,7 @@
   <div class="update-avatar">
     <img :src="photo" alt="" ref="image" />
     <div class="toolbar">
-      <span>取消</span>
+      <span @click="cancel">取消</span>
       <span @click="confirm">完成</span>
     </div>
   </div>
@@ -15,6 +15,7 @@
 import 'cropperjs/dist/cropper.css'
 import Cropper from 'cropperjs'
 import { uploadPhotoAPI } from '@/api'
+import { Toast } from 'vant'
 export default {
   name: 'UpdateAvatar',
   props: {
@@ -44,11 +45,25 @@ export default {
       })
     },
     confirm() {
-      this.myCropper.getCroppedCanvas().toBlob(async (blob) => {
-        const res = await uploadPhotoAPI(blob)
-        this.$emit('update:avator', res.data.data.photo)
-        this.$parent.$parent.isShowPhoto = false
+      Toast.loading({
+        message: '保存中...',
+        forbidClick: true,
+        loadingType: 'spinner',
+        duration: 0
       })
+      try {
+        this.myCropper.getCroppedCanvas().toBlob(async (blob) => {
+          const res = await uploadPhotoAPI(blob)
+          this.$emit('update:avator', res.data.data.photo)
+          this.$parent.$parent.isShowPhoto = false
+          Toast.success('更新成功')
+        })
+      } catch (error) {
+        Toast.fail('更新失败')
+      }
+    },
+    cancel() {
+      this.$parent.$parent.isShowPhoto = false
     }
 
   }
