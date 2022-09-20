@@ -32,3 +32,18 @@ export const getCommentListAPI = (params) => {
     params
   })
 }
+export const addCollectAPI = (target) => {
+  return request({
+    method: 'POST',
+    url: '/v1_0/article/collections',
+    data: {
+      target
+    }
+  })
+}
+export const delCollectAPI = (target) => {
+  return request({
+    method: 'DELETE',
+    url: `/v1_0/article/collections/${target}`
+  })
+}

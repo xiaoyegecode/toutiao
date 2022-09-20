@@ -29,7 +29,7 @@
       position="bottom"
       :style="{ height: '100%' }"
     >
-      <UpdateAvatar :photo="photo" v-if="isShowPhoto" :avator.sync="avator"></UpdateAvatar>
+      <UpdateAvatar :photo="photo" v-if="isShowPhoto" :avator.sync="user.photo"></UpdateAvatar>
     </van-popup>
     <!-- 更新昵称弹出层 -->
     <van-popup
@@ -77,7 +77,6 @@ export default {
       isShowGenders: false,
       isShowBirthday: false,
       photo: '',
-      avator: '',
       user: {}
     }
   },

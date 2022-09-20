@@ -22,10 +22,6 @@ export default {
     photo: {
       type: String,
       required: true
-    },
-    avator: {
-      type: String,
-      required: true
     }
   },
   mounted() {

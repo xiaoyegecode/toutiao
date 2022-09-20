@@ -61,7 +61,11 @@
         <p class="text">内容加载失败！</p>
         <van-button class="retry-btn">点击重试</van-button>
       </div>
-      <CommentList :source="artId" @onload-success="totalCount = $event"></CommentList>
+      <CommentList
+        :source="artId"
+        @onload-success="onloadSuccess"
+        @click-reply="onReplyClick"
+      ></CommentList>
     </div>
     <!-- 底部区域 -->
     <div class="article-bottom">
@@ -74,7 +78,7 @@
         >写评论</van-button
       >
       <van-icon name="comment-o" :badge="totalCount" color="#777" />
-      <van-icon color="#777" name="star-o" />
+      <CollectArticle v-model="article.is_collected" :artId="article.art_id"></CollectArticle>
       <van-icon color="#777" name="good-job-o" />
       <van-icon name="share" color="#777777"></van-icon>
     </div>
@@ -85,7 +89,15 @@
       position="bottom"
       :style="{ height: '30%' }"
     >
-    <PostComment :target="artId" @on-success="onSuccess"></PostComment>
+      <PostComment :target="artId" @on-success="onSuccess"></PostComment>
+    </van-popup>
+    <!-- 回复评论弹出层 -->
+    <van-popup
+      v-model="isShowReply"
+      position="bottom"
+      :style="{ height: '90%' }"
+    >
+      <CommentReply :comment="currentComment" @close="isShowReply=false" v-if="isShowReply"></CommentReply>
     </van-popup>
   </div>
 </template>
@@ -94,13 +106,15 @@
 import FollowUsers from './FollowUsers'
 import PostComment from './PostComment'
 import CommentList from './CommentList'
+import CommentReply from './CommentReply'
+import CollectArticle from './CollectArticle'
 import { getArticleByIdAPI } from '@/api'
 import dayjs from '@/utils/dayjs'
 import { Toast } from 'vant'
 import 'github-markdown-css/github-markdown.css'
 export default {
   name: 'Detail',
-  components: { FollowUsers, PostComment, CommentList },
+  components: { FollowUsers, PostComment, CommentList, CommentReply, CollectArticle },
   props: {
     artId: {
       type: [Number, String, Object],
@@ -113,8 +127,10 @@ export default {
       isLoading: true,
       is404: false,
       isShowPostComment: false,
+      isShowReply: false,
       list: [],
-      totalCount: 0
+      totalCount: 0,
+      currentComment: {}
     }
   },
   created() {
@@ -133,9 +149,17 @@ export default {
       }
       this.isLoading = false
     },
+    onloadSuccess(totalCount, commentlist) {
+      this.totalCount = totalCount
+      this.list = commentlist
+    },
     onSuccess(newObj) {
       this.isShowPostComment = false
       this.list.unshift(newObj)
+    },
+    onReplyClick(comment) {
+      this.isShowReply = true
+      this.currentComment = comment
     }
   },
   computed: {

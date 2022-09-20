@@ -80,6 +80,7 @@
               queueMicrotask(() => {
                 try {
                   const x = onFulfilled(this.value)
+                  resolvePromise((x,p2,resolve,reject))
                   resolve(x)
                 } catch (error) {
                   reject(error)
@@ -101,10 +102,20 @@
         return p2
       }
     }
-
+    // 用x定p2的状态
+    // x 是then 成功或者失败回调的返回值
+    // p2 then方法返回的promise
+    // 
+    function resolvePromise(x,p2,resolve,reject) {
+      if(x===2) {
+        throw new TypeError('chaining cycle detected for promise')
+      }
+        
+    }
     const p = new Promise((resolve, reject) => {
       // resolve('成功')
-      setTimeout(() => {
+      setTimeout(() => { 
+
         resolve('成功')
       }, 3000)
     })

@@ -52,6 +52,7 @@ export default {
           content: this.value,
           art_id: this.artId
         })
+        // console.log(res.data.data.new_obj)
         Toast.success('评论成功')
         this.$emit('on-success', res.data.data.new_obj)
         this.value = ''

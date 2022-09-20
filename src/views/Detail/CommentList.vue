@@ -11,6 +11,7 @@
         v-for="(item, index) in list"
         :key="index"
         :comment="item"
+        @click-reply="$emit('click-reply',$event)"
       ></CommentItem>
     </van-list>
     <!-- 评论列表 -->
@@ -44,6 +45,9 @@ export default {
     source: {
       type: [Number, Object, String],
       required: true
+    },
+    type: {
+      default: 'a'
     }
   },
 
@@ -51,20 +55,20 @@ export default {
     async onLoad() {
       // 1. 请求获取数据
       const { data } = await getCommentListAPI({
-        type: 'a', // 评论类型，a-对文章(article)的评论，c-对评论(comment)的回复
+        type: this.type, // 评论类型，a-对文章(article)的评论，c-对评论(comment)的回复
         source: this.source, // 源id，文章id或评论id
         offset: this.offset, // 获取评论数据的偏移量，值为评论id，表示从此id的数据向后取，不传表示从第一页开始读取数据
         limit: 10 // 每页大小
       })
 
-      console.log(data)
+      // console.log(data)
       // 2. 将数据添加到列表中
       const { results } = data.data
       this.list.push(...results)
 
       // 更新总数据条数
       this.totalCount = data.data.total_count
-      this.$emit('onload-success', this.totalCount)
+      this.$emit('onload-success', this.totalCount, this.list)
       // 3. 将加载更多的 loading 设置为 false
       this.loading = false
 
